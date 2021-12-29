@@ -9,7 +9,9 @@ args=()
 
 for argument; do
   # If the current argument is --medium expect path of the medium in next argument
-  if [ "$argument" = '--medium' ]; then
+  if [ "$argument" == 'none' ]; then
+      is_next_path=0
+  elif [ "$argument" == '--medium' ]; then
     is_next_path=1
   elif [ $is_next_path = 1 ]; then
     # Packer tries to create floppy in the linux /tmp folder which is not representable in Windows. Replace it with direct storage path
@@ -24,8 +26,11 @@ for argument; do
   args+=("\"$argument\"")
 done
 
+
 # Redirect to Windows VBoxManage and convert Windows paths back to WSL paths
 echo "${args[@]}" | xargs /mnt/c/Program\ Files/Oracle/VirtualBox/VBoxManage.exe | sed -r '/[A-Za-z]:\\.*$/{h; s/(.*)([A-Za-z]:\\.*)$/\2/; s/(.+)/wslpath "\1"/e; H; x; s/(([A-Za-z]:\\.*)\n(.+))/\3/ }'
+
+#echo "$finish_result"
 
 # /[A-Za-z]:\\.*$/ # Find lines that end with Windows paths
 #  { # For each line
